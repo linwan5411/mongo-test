@@ -3,14 +3,14 @@ package com.mymongo.entity;
 /**
  * 执行mapReduce处理的结果集对象
  */
-public class A {
+public class MapReduceResult {
     private String _id;
 
     private String value;
 
     @Override
     public String toString() {
-        return "A{" +
+        return "MapReduceResult{" +
                 "_id='" + _id + '\'' +
                 ", value='" + value + '\'' +
                 '}';
