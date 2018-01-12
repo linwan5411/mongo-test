@@ -1,0 +1,18 @@
+package com.mymongo.mongo.config;
+
+import com.mymongo.mongo.base.CommonRepositoryImpl;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+
+/**
+ * 改用通用的接口来注册启动类,CommonRepositoryImpl替换原来的MongoRepository来实现注册扫描
+ */
+@Configuration
+@EnableMongoRepositories(
+        basePackages = {"com.mymongo.mongo"},
+        repositoryBaseClass  = CommonRepositoryImpl.class
+)
+public class MongoConfig {
+
+
+}
