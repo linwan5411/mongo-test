@@ -1,6 +1,6 @@
 package com.mymongo.entity;
 
-import com.example.demo1.mongo.entity.Entity;
+import com.mymongo.mongo.entity.Entity;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 

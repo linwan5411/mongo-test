@@ -1,15 +1,30 @@
 package com.mymongo.mongo.service;
 
+import com.mongodb.*;
+import com.mymongo.entity.MapReduceResult;
 import com.mymongo.entity.User;
 import com.mymongo.mongo.dao.UserDao;
 import com.mymongo.mongo.entity.Entity;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.*;
+import org.springframework.data.mongodb.core.CollectionCallback;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.mapreduce.MapReduceResults;
+import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
 
 
 /**
@@ -43,7 +58,7 @@ public class BaseService<T extends Entity> {
     }
 
     /**分页查询**/
-    public Page<User> selectByPage(PageRequest pageable,Map<String,Object> param){
+    public Page<User> selectByPage(PageRequest pageable, Map<String,Object> param){
         return userDao.findByPage(pageable,param);
     }
 
@@ -138,10 +153,10 @@ public class BaseService<T extends Entity> {
         String reduce = "function(key,values){var sum = 0;for(var i = 0;i<values.length;i++){ sum += values[i];} return sum;}";
 
         //求和
-        MapReduceResults<A> test =  mongoTemplate.mapReduce("mytest",map,reduce,A.class);
+        MapReduceResults<MapReduceResult> test =  mongoTemplate.mapReduce("mytest",map,reduce,MapReduceResult.class);
 
         //回的结果集
-        for (A valueObject : test) {
+        for (MapReduceResult valueObject : test) {
             System.out.println(valueObject);
         }
     }
@@ -160,8 +175,65 @@ public class BaseService<T extends Entity> {
         String json = "{'$group':{_id:'max',sum_value:{'$sum':'$age'}}}";
         CommandResult jsonResult = mongoTemplate.executeCommand(json);
         System.out.println(jsonResult.toString());
+    }
 
+    /***查询返回制定的字段***/
+    public void queryFiledResult(){
+        //查询条件 ==
+        DBObject dbObject = new BasicDBObject();
+
+        BasicDBObject fieldsObject=new BasicDBObject();
+        fieldsObject.put("name", true);
+        fieldsObject.put("age", true);
+        Query query = new BasicQuery(dbObject,fieldsObject);
+        List<User> user = mongoTemplate.find(query, User.class);
+        user.forEach(e->{
+            System.out.println(e.toString());
+        });
 
     }
+
+    /**修改实体**/
+    public void updateDBexsit(){
+        User u = new User();u.setName("修改人");u.setId("6aa4eed5-3592-4902-bd86-aa26e7758311");
+        //updateFirst:修改符合条件第一条记录
+        //updateMulti:修改符合条件的所有
+        //Upsert     :修改符合条件时如果不存在则添加
+        Update update = Update.update("name","消耗快");update.set("cls","我勾人");
+        //修改条件
+        Query query = new Query().addCriteria(Criteria.where("_id").is(u.getId()));
+
+        WriteResult result = mongoTemplate.updateFirst(query, update,User.class);
+
+        result.toString();
+    }
+
+    /**修改实体**/
+    public void updateDBexsitMore(){
+        //通过回调来返回集合区重复
+        List<String> u = mongoTemplate.execute("mytest", new CollectionCallback<List<String>>() {
+            @Override
+            public List<String> doInCollection(DBCollection collection) throws MongoException, DataAccessException {
+                System.out.println("统计集合的长度:"+collection.count());
+                List<String> user = collection.distinct("cls");
+                return user;
+            }
+        });
+        u.forEach(e ->{
+            System.out.println(e.toString());
+        });
+    }
+
+    /***原始的db Collection的操作***/
+    public void oldColection(){
+        DBCollection collection =mongoTemplate.getCollection("mytest");
+        DBObject query = new BasicDBObject();query.put("age",19);
+        DBObject update = new BasicDBObject();update.put("name","张三丰");
+
+        //注意这个修改，就会修改所有当前有的字段，没有的字段则会全部为空.
+        WriteResult  result = collection.update(query,update);
+        result.toString();
+    }
+
 
 }

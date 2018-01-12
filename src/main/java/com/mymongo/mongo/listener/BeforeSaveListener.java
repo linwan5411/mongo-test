@@ -1,6 +1,6 @@
 package com.mymongo.mongo.listener;
 
-import com.example.demo1.mongo.entity.Entity;
+import com.mymongo.mongo.entity.Entity;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
 import org.springframework.data.mongodb.core.mapping.event.BeforeSaveEvent;
 import org.springframework.stereotype.Component;
