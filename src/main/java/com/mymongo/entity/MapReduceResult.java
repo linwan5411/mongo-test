@@ -8,14 +8,6 @@ public class MapReduceResult {
 
     private String value;
 
-    @Override
-    public String toString() {
-        return "MapReduceResult{" +
-                "_id='" + _id + '\'' +
-                ", value='" + value + '\'' +
-                '}';
-    }
-
     public String get_id() {
         return _id;
     }
