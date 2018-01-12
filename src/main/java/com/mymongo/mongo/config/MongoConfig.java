@@ -12,7 +12,11 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
         basePackages = {"com.mymongo.mongo"},
         repositoryBaseClass  = CommonRepositoryImpl.class
 )
-public class MongoConfig {
+public class MongoConfig{
 
-
+    /***实现手动配置**/
+    /*extends MongoAutoConfiguration
+    public MongoConfig(MongoProperties properties, ObjectProvider<MongoClientOptions> options, Environment environment) {
+        super(properties, options, environment);
+    }*/
 }
